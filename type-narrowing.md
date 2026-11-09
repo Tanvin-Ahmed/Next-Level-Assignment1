@@ -2,11 +2,11 @@
 
 ## Introduction
 
-A union lets one variable hold more than one type. `string | number` is a simple case. TypeScript blocks string methods on that variable until you show which type is actually there. Type narrowing is that check. After it passes, the type inside the block gets smaller, and the matching methods become allowed.
+A union lets one value have more than one type, such as `string | number`. TypeScript blocks string methods until you show which type is there. That check is called type narrowing. Inside the branch, the type gets smaller.
 
 ## Checking the type
 
-`typeof` is the usual check for primitives. It looks at the runtime type and narrows the union in that branch.
+`typeof` checks a primitive and narrows the union in that branch.
 
 ```ts
 function double(value: string | number): string | number {
@@ -17,11 +17,28 @@ function double(value: string | number): string | number {
 }
 ```
 
-In the first branch, `value` is a string, so `trim` is safe. In the other branch it is a number, so multiplication is safe.
+In the first branch, `trim()` is safe. In the other branch the value is a number.
 
-`instanceof` is for classes. It asks if the object was made from a given constructor. If `animal instanceof Dog` is true, TypeScript treats `animal` as a `Dog`, and `bark()` is allowed.
+`instanceof` is for classes. It checks the constructor, then narrows to that class.
 
-The `in` operator checks for a property name. That helps when two object types are not classes, but they have different keys.
+```ts
+class Dog {
+  bark(): string {
+    return "woof";
+  }
+}
+
+function speak(pet: Dog | string): string {
+  if (pet instanceof Dog) {
+    return pet.bark();
+  }
+  return pet.trim();
+}
+```
+
+Inside the `if`, `bark()` is allowed. Otherwise `pet` is a string.
+
+The `in` operator checks for a property. Use it when two object types have different keys.
 
 ```ts
 type Car = { wheels: number };
@@ -35,8 +52,8 @@ function label(item: Car | Boat): string {
 }
 ```
 
-If `"sails"` exists, `item` is a `Boat`. Otherwise it is a `Car`.
+If `sails` exists, `item` is a `Boat`. Otherwise it is a `Car`.
 
 ## Conclusion
 
-Narrowing does not change the stored value. It only tells the compiler which type is active in that block. Use `typeof` for primitives, `instanceof` for class instances, and `in` when a property name separates two objects. After the check, you can use the value without a type cast.
+Narrowing does not change the stored value. It tells the compiler which type is active in that block. Use `typeof` for primitives, `instanceof` for classes, and `in` when a property name separates two objects.
